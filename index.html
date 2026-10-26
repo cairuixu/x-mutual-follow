@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>推特互关榜 · X Mutual Follow</title>
+<meta name="description" content="登记你的推特账号，上互关榜随机认识新朋友，查看谁关注了你、谁回关了你。">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--blue:#1d9bf0;--green:#16a34a;--orange:#ea580c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+a{color:var(--blue);text-decoration:none}header{background:#000;color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+header b{font-size:18px}header nav{display:flex;gap:8px;flex-wrap:wrap}
+button{border:0;border-radius:999px;padding:9px 16px;cursor:pointer;font-size:14px;background:#111827;color:#fff}
+button.secondary{background:#fff;color:#111827;border:1px solid var(--line)}button.blue{background:var(--blue)}button:disabled{opacity:.45;cursor:not-allowed}
+.wrap{max-width:960px;margin:0 auto;padding:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px}
+.muted{color:var(--muted);font-size:14px;line-height:1.7}.small{font-size:13px}
+input,textarea,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px;margin:6px 0 12px}
+label{font-size:14px;font-weight:600}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.person{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}
+.person h3{margin:0 0 4px;font-size:16px}.handle{color:var(--muted);font-size:14px}
+.tag{display:inline-block;background:#eef2ff;border-radius:999px;padding:3px 9px;font-size:12px;margin:2px 3px 2px 0}
+.badge{display:inline-block;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;margin:6px 0}
+.b-mutual{background:#dcfce7;color:#166534}.b-ifollow{background:#dbeafe;color:#1e40af}.b-followsme{background:#ffedd5;color:#9a3412}.b-none{background:#f3f4f6;color:#4b5563}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.row button{padding:7px 13px;font-size:13px}
+.banner{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:12px 14px;margin-bottom:16px}
+.ok{color:var(--green);font-weight:700}.tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tabs button{background:#fff;color:#111827;border:1px solid var(--line)}.tabs button.active{background:#111827;color:#fff}
+pre{white-space:pre-wrap;background:#f9fafb;border:1px solid var(--line);border-radius:12px;padding:12px;line-height:1.7;font-family:inherit}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+  <b>🤝 推特互关榜</b>
+  <nav>
+    <button onclick="showTab('board')" id="tab-board">互关榜</button>
+    <button onclick="showTab('me')" id="tab-me" class="secondary">我的主页</button>
+    <button onclick="showTab('gate')" id="tab-gate" class="secondary">门槛校验</button>
+    <span id="loginState" class="small" style="align-self:center"></span>
+  </nav>
+</header>
+
+<div class="wrap">
+  <div class="banner" id="gateBanner"></div>
+
+  <!-- 登录 / 登记 -->
+  <div class="card" id="loginCard">
+    <h2 style="margin-top:0">1 · 登录并登记你的关注需求</h2>
+    <p class="muted">演示模式：先用你的推特 handle 登录登记，完整流程都可验收。正式版接通推特 OAuth 后，这里会变成“用 X 登录”，并用推特 API 真实核查关注关系（见 README 的升级说明）。</p>
+    <label>你的推特 handle（不带 @）</label>
+    <input id="myHandle" placeholder="例如 cairuixu">
+    <label>昵称</label>
+    <input id="myName" placeholder="例如 小禾">
+    <label>简介 / 关注需求</label>
+    <textarea id="myBio" rows="2" placeholder="例如：想认识加密、AI 领域的朋友，互关必回"></textarea>
+    <label>领域标签（多选）</label>
+    <div id="tagBox" class="row"></div>
+    <div class="row">
+      <button class="blue" onclick="loginAndRegister()">登录并登记上榜</button>
+      <button class="secondary" onclick="logout()">退出登录</button>
+    </div>
+    <p class="muted small" id="registerNote"></p>
+  </div>
+
+  <!-- 互关榜 -->
+  <div id="view-board">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <h2 style="margin:0">互关榜 · 随机推荐</h2>
+        <button class="blue" onclick="shuffleBoard()">🔀 换一换（刷新榜单）</button>
+      </div>
+      <p class="muted">每次刷新网页、每次点“换一换”，榜单顺序都会重新随机洗牌。榜单不含你自己。</p>
+      <p class="muted small" id="boardMeta"></p>
+    </div>
+    <div class="grid" id="board"></div>
+  </div>
+
+  <!-- 我的主页 -->
+  <div id="view-me" class="hidden">
+    <div class="card">
+      <h2 style="margin-top:0">我的主页</h2>
+      <div id="myProfile"></div>
+    </div>
+    <div class="card">
+      <h2 style="margin-top:0">我关注过的账号</h2>
+      <p class="muted">右边显示对方是否也关注了你：已互关 / 对方未回关。</p>
+      <div id="myFollowed"></div>
+    </div>
+  </div>
+
+  <!-- 门槛 -->
+  <div id="view-gate" class="hidden">
+    <div class="card">
+      <h2 style="margin-top:0">使用互关功能的前提</h2>
+      <p class="muted">两项都通过后，才能点榜单上的“去关注 / 确认已关注”。正式版会用推特 API 自动核查；演示版点“我已完成”模拟核查结果。</p>
+      <h3>① 关注官方推特账号</h3>
+      <p>官方账号：<a href="https://x.com/cairuixu" target="_blank" rel="noopener">@cairuixu</a></p>
+      <div class="row"><a href="https://x.com/cairuixu" target="_blank" rel="noopener"><button class="blue">去关注 @cairuixu</button></a><button onclick="setGate('official',true)">我已关注官方</button></div>
+      <p id="gateOfficial"></p>
+      <h3>② 发布一篇网站宣传推文</h3>
+      <p class="muted">固定文案如下，含本站链接。点“发布推文”会打开推特发推框，文案已预填，点发送即可。</p>
+      <pre id="promoText"></pre>
+      <div class="row"><button class="blue" onclick="openPromo()">发布宣传推文</button><button class="secondary" onclick="copyPromo()">复制文案</button><button onclick="setGate('promo',true)">我已发布</button></div>
+      <p id="gatePromo"></p>
+      <p class="muted small">正式版判定标准：你的近期推文里含有本站链接（x-mutual-follow.pages.dev）即算通过；文案可自由发挥，但必须带链接。</p>
+    </div>
+  </div>
+
+  <p class="muted small" style="text-align:center">本站不替你自动批量关注，所有关注都在推特主页由你手动完成；请遵守推特每日关注上限与反垃圾规则。</p>
+</div>
+
+<script>
+const SITE_URL = "https://x-mutual-follow.pages.dev";
+const OFFICIAL = "cairuixu";
+const PROMO = "发现一个推特互关神器 🤝 登记账号就能上互关榜，随机刷出新朋友，一键看谁回关了你！先关注 @cairuixu，发布这条推文解锁互关榜 👉 " + SITE_URL + " #推特互关 #互关";
+document.getElementById('promoText').textContent = PROMO;
+
+const TAGS = ["加密","AI","游戏","生活","摄影","音乐","运动","创业","设计","美食"];
+const SEEDS = [
+  ["crypto_momo","Momo","加密行情与空投分享，互关必回",["加密","AI"],1240],
+  ["ai_daily_lee","Lee","每天一条 AI 工具测评",["AI","创业"],860],
+  ["game_night_owl","夜枭","独立游戏玩家，晚上在线",["游戏","生活"],4320],
+  ["photo_walk","行走的相机","城市街拍，周末约拍",["摄影","生活"],2100],
+  ["fit_with_anna","Anna","健身打卡，减脂互督",["运动","生活"],980],
+  ["indie_maker_k","K","独立开发者，做小产品",["创业","AI"],1560],
+  ["foodie_tokyo","东京吃货","拉面与咖啡探店",["美食","生活"],3210],
+  ["music_lover_jo","Jo","每周歌单分享",["音乐","生活"],740],
+  ["design_daily","设计日报","UI 灵感合集",["设计","AI"],2890],
+  ["web3_builder_sam","Sam","Web3 建设者，找互关",["加密","创业"],4100],
+  ["travel_light","轻旅行","一个人旅行记录",["生活","摄影"],1730],
+  ["code_poet","代码诗人","写代码也写诗",["AI","创业"],650],
+  ["ball_fan_88","球迷88","足球篮球都看",["运动","生活"],5340],
+  ["cat_mama_lulu","Lulu 的猫","两只猫的日常",["生活","摄影"],2980],
+  ["stock_watch_chen","老陈看盘","美股与 ETF 笔记，不构成投资建议",["创业","生活"],6120],
+  ["anime_room","动漫小屋","新番吐槽",["游戏","生活"],1890],
+  ["tea_time_may","May 的茶","茶与手帐",["生活","美食"],910],
+  ["run_morning","晨跑者","每天 5 公里打卡",["运动","生活"],1340],
+  ["pixel_artist","像素画家","像素画练习中",["设计","游戏"],2270],
+  ["learn_english_d","D","英语打卡，求互督",["生活","创业"],480],
+  ["nft_collector_z","Z","数字藏品收藏",["加密","设计"],3760],
+  ["book_club_nina","Nina","每月一本书",["生活","摄影"],1120],
+  ["drone_flyer","飞手阿飞","航拍视频",["摄影","游戏"],2590],
+  ["startup_diary","创业日记","从 0 到 1 记录",["创业","AI"],840],
+];
+// 演示关系：iFollow=我是否已关注对方，followsMe=对方是否已关注我
+const DEMO_REL = {"crypto_momo":[1,1],"ai_daily_lee":[1,0],"game_night_owl":[0,1],"photo_walk":[0,0],"fit_with_anna":[1,1],"web3_builder_sam":[0,1],"foodie_tokyo":[1,0]};
+function load(k,f){try{return JSON.parse(localStorage.getItem(k))||f}catch(e){return f}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+let me = load('xmf_me',null);
+let gate = load('xmf_gate',{official:false,promo:false});
+let myFollows = load('xmf_myFollows',{}); // handle -> {name,tags}
+let boardPool = load('xmf_pool',null);
+if(!boardPool){ boardPool = SEEDS.map(s=>({handle:s[0],name:s[1],bio:s[2],tags:s[3],followers:s[4]})); save('xmf_pool',boardPool); }
+function allAccounts(){
+  return boardPool.map(a=>{
+    const rel = DEMO_REL[a.handle] || [myFollows[a.handle]?1:0, 0];
+    // 已在“我关注”里的账号，若演示关系里写了回关则保留，否则默认未回关
+    const iFollow = myFollows[a.handle] ? true : !!rel[0];
+    const followsMe = !!rel[1];
+    return {...a, iFollow, followsMe};
+  }).filter(a=>!me || a.handle.toLowerCase()!==me.handle.toLowerCase());
+}
+function badge(a){
+  if(a.iFollow && a.followsMe) return '<span class="badge b-mutual">✓ 已互关</span>';
+  if(a.iFollow) return '<span class="badge b-ifollow">我已关注对方</span>';
+  if(a.followsMe) return '<span class="badge b-followsme">对方已关注我 · 快回关</span>';
+  return '<span class="badge b-none">未互关</span>';
+}
+function gatePassed(){ return gate.official && gate.promo; }
+function renderGate(){
+  document.getElementById('gateOfficial').innerHTML = gate.official ? '<span class="ok">✓ 已通过：已关注 @cairuixu</span>' : '未通过：请先关注官方账号';
+  document.getElementById('gatePromo').innerHTML = gate.promo ? '<span class="ok">✓ 已通过：已发布宣传推文</span>' : '未通过：请先发布宣传推文';
+  document.getElementById('gateBanner').innerHTML = gatePassed()
+    ? '<span class="ok">✓ 门槛已通过</span>：互关功能已解锁，去互关榜认识新朋友吧。'
+    : '⚠️ 使用互关功能前，请先完成门槛：<b>关注 @cairuixu</b> + <b>发布一篇本站宣传推文</b>。去“门槛校验”页完成，榜单上的关注按钮在通过前不可用。';
+  document.getElementById('loginState').textContent = me ? ('已登录 @'+me.handle) : '未登录';
+}
+function shuffleBoard(){
+  const list = allAccounts();
+  for(let i=list.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[list[i],list[j]]=[list[j],list[i]];}
+  const shown = list.slice(0,12);
+  document.getElementById('boardMeta').textContent = '本次随机抽出 '+shown.length+' 个账号（共 '+list.length+' 个登记账号），刷新页面或点“换一换”会重新洗牌。';
+  document.getElementById('board').innerHTML = shown.map(a=>`
+    <div class="person">
+      <h3>${a.name}</h3><div class="handle">@${a.handle} · ${a.followers} 粉丝</div>
+      <p class="small" style="line-height:1.6">${a.bio}</p>
+      <div>${a.tags.map(t=>'<span class="tag">'+t+'</span>').join('')}</div>
+      <div>${badge(a)}</div>
+      <div class="row">
+        <a href="https://x.com/${a.handle}" target="_blank" rel="noopener"><button class="secondary">去对方主页</button></a>
+        ${a.iFollow
+          ? '<button class="secondary" disabled>已关注</button>'
+          : `<button class="blue" ${gatePassed()?'':'disabled'} onclick="confirmFollow('${a.handle}')">去关注</button>`}
+      </div>
+      ${gatePassed()?'':'<p class="small muted">需先通过门槛校验才能关注</p>'}
+    </div>`).join('');
+}
+function confirmFollow(handle){
+  // 第一次点：打开对方主页手动关注；第二次点：确认已关注并记录
+  const a = allAccounts().find(x=>x.handle===handle);
+  if(!myFollows[handle] && !window['_opened_'+handle]){
+    window['_opened_'+handle]=true;
+    window.open('https://x.com/'+handle,'_blank');
+    alert('已打开 @'+handle+' 的推特主页，请在推特上点关注，回来再点一次“去关注”确认。');
+    return;
+  }
+  myFollows[handle]={name:a.name,tags:a.tags,followsMe:a.followsMe};
+  save('xmf_myFollows',myFollows);
+  shuffleBoard(); renderMe();
+}
+function renderMe(){
+  if(!me){ document.getElementById('myProfile').innerHTML='<p class="muted">尚未登录登记，请在顶部登记你的账号。</p>'; document.getElementById('myFollowed').innerHTML=''; return; }
+  document.getElementById('myProfile').innerHTML = '<p><b>'+me.name+'</b> @'+me.handle+'</p><p class="muted">'+me.bio+'</p><div>'+me.tags.map(t=>'<span class="tag">'+t+'</span>').join('')+'</div>';
+  const list = Object.entries(myFollows);
+  // 加上演示里“我已关注”的账号
+  allAccounts().filter(a=>a.iFollow && !myFollows[a.handle]).forEach(a=>list.push([a.handle,{name:a.name,followsMe:a.followsMe}]));
+  if(!list.length){ document.getElementById('myFollowed').innerHTML='<p class="muted">还没有关注过的账号，去互关榜逛逛吧。</p>'; return; }
+  document.getElementById('myFollowed').innerHTML = list.map(([h,v])=>{
+    const followsMe = v.followsMe ? '<span class="badge b-mutual">对方也关注了我 · 已互关</span>' : '<span class="badge b-none">对方尚未回关你</span>';
+    return '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding:10px 0"><span><b>'+v.name+'</b> <span class="handle">@'+h+'</span></span><span>'+followsMe+'</span></div>';
+  }).join('');
+}
+function loginAndRegister(){
+  const handle=document.getElementById('myHandle').value.trim().replace(/^@/,'');
+  const name=document.getElementById('myName').value.trim()||handle;
+  const bio=document.getElementById('myBio').value.trim()||'求互关，互关必回';
+  const tags=[...document.querySelectorAll('#tagBox input:checked')].map(x=>x.value);
+  if(!handle){alert('请先填你的推特 handle');return;}
+  me={handle,name,bio,tags}; save('xmf_me',me);
+  if(!boardPool.find(a=>a.handle.toLowerCase()===handle.toLowerCase())){
+    boardPool.push({handle,name,bio,tags,followers:0}); save('xmf_pool',boardPool);
+  }
+  document.getElementById('registerNote').textContent='已登记上榜：@'+handle+'，其他访客刷新榜单时有机会随机刷到你（演示版数据只存在本机，正式版见 README）。';
+  renderGate(); shuffleBoard(); renderMe(); showTab('board');
+}
+function logout(){ me=null; save('xmf_me',null); renderGate(); shuffleBoard(); renderMe(); }
+function setGate(k,v){ gate[k]=v; save('xmf_gate',gate); renderGate(); shuffleBoard(); }
+function openPromo(){ window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(PROMO),'_blank'); }
+function copyPromo(){ navigator.clipboard.writeText(PROMO).then(()=>alert('宣传文案已复制')); }
+function showTab(t){
+  ['board','me','gate'].forEach(x=>{
+    document.getElementById('view-'+x).classList.toggle('hidden',x!==t);
+    document.getElementById('tab-'+x).className = x===t ? '' : 'secondary';
+  });
+  if(t==='me') renderMe();
+}
+document.getElementById('tagBox').innerHTML = TAGS.map(t=>'<label style="font-weight:400"><input type="checkbox" value="'+t+'" style="width:auto"> '+t+'</label>').join(' ');
+if(me){ document.getElementById('myHandle').value=me.handle; document.getElementById('myName').value=me.name; document.getElementById('myBio').value=me.bio; }
+renderGate(); shuffleBoard(); renderMe();
+</script>
+</body>
+</html>
