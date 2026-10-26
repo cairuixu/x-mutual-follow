@@ -9,24 +9,24 @@
 :root{--bg:#f8fafc;--card:#fff;--text:#0f172a;--muted:#64748b;--line:#e2e8f0;--blue:#1d9bf0;--green:#16a34a;--dark:#0f172a}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.6}
 a{color:var(--blue);text-decoration:none}
-.topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar{position:sticky;top:0;z-index:50;background:#000;border-bottom:1px solid #000}
 .topbar-inner{max-width:1080px;margin:0 auto;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;color:var(--dark)}
-.logo-mark{width:36px;height:36px;border-radius:10px;background:var(--dark);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;color:#fff}
+.logo-mark{width:36px;height:36px;border-radius:50%;background:#fff;color:#000;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900}
 .topnav{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.topnav button{background:transparent;color:var(--dark)}
-.topnav button.active{background:var(--dark);color:#fff}
+.topnav button{background:transparent;color:#fff}
+.topnav button.active{background:#fff;color:#000}
 button{border:0;border-radius:999px;padding:10px 18px;cursor:pointer;font-size:14px;font-weight:600;background:#111827;color:#fff}
 button.secondary{background:#fff;color:#111827;border:1px solid var(--line)}button.blue{background:var(--blue)}button:disabled{opacity:.45;cursor:not-allowed}
 .wrap{max-width:1080px;margin:0 auto;padding:18px}
-.hero{background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff;border-radius:24px;padding:36px 28px;margin:18px 0 20px}
+.hero{background:#fff;border:1px solid var(--line);border-radius:24px;padding:40px 28px;margin:18px 0 20px}
 .hero h1{margin:0 0 10px;font-size:32px;line-height:1.25}
-.hero p{margin:0 0 18px;color:#dbeafe;max-width:640px}
+.hero p{margin:0 0 18px;color:var(--muted);max-width:640px}
 .hero .cta{display:flex;gap:10px;flex-wrap:wrap}
-.hero .cta button{background:#fff;color:#0f172a}.hero .cta button.blue{background:var(--blue);color:#fff}
+.hero .cta button{background:#000;color:#fff;padding:14px 26px;font-size:16px}.hero .cta button.blue{background:#000;color:#fff}
 .stats{display:flex;gap:16px;flex-wrap:wrap;margin-top:20px}
-.stat{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:12px 16px;min-width:140px}
-.stat b{display:block;font-size:22px}.stat span{color:#dbeafe;font-size:13px}
+.stat{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px 16px;min-width:140px}
+.stat b{display:block;font-size:22px}.stat span{color:var(--muted);font-size:13px}
 .section-title{font-size:22px;margin:24px 0 6px}.section-sub{color:var(--muted);margin:0 0 14px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;margin-bottom:16px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
 .muted{color:var(--muted);font-size:14px;line-height:1.7}.small{font-size:13px}
@@ -55,7 +55,7 @@ pre{white-space:pre-wrap;background:#f9fafb;border:1px solid var(--line);border-
 <body>
 <header class="topbar">
   <div class="topbar-inner">
-    <div class="logo"><span class="logo-mark">🤝</span> 推特互关榜 <span class="small" style="color:var(--muted);font-weight:400">X Mutual Follow</span></div>
+    <div class="logo"><span class="logo-mark">𝕏</span> 推特互关榜 <span class="small" style="color:#a1a1aa;font-weight:400">X Mutual Follow</span></div>
     <nav class="topnav">
       <button onclick="showTab('board')" id="tab-board" class="active">互关榜</button>
       <button onclick="showTab('me')" id="tab-me">我的主页</button>
@@ -67,40 +67,32 @@ pre{white-space:pre-wrap;background:#f9fafb;border:1px solid var(--line);border-
 
 <div class="wrap">
   <section class="hero">
-    <h1>找到愿意和你互关的推特朋友</h1>
-    <p>用 X 账号登录，登记你的关注需求，随机刷出新朋友。关注都在推特主页由你手动完成，本站只记录、不自动批量关注。</p>
+    <h1>用 X 登录，开始互关</h1>
+    <p>全站只有一个登录方式：推特授权。登录后你的账号自动上榜，随机刷出新朋友，关注在推特主页由你手动完成，本站不自动关注。</p>
     <div class="cta">
-      <button class="blue" onclick="twitterLogin()">用 X 登录，开始互关</button>
-      <button onclick="showTab('board')">去互关榜看看 →</button>
+      <button onclick="twitterLogin()">𝕏 &nbsp;用 X 登录</button>
     </div>
     <div class="stats">
-      <div class="stat"><b id="heroTotal">—</b><span>已登记账号</span></div>
-      <div class="stat"><b>随机洗牌</b><span>每次刷新、换一换都重排</span></div>
+      <div class="stat"><b id="heroTotal">—</b><span>已上榜账号</span></div>
+      <div class="stat"><b>唯一登录</b><span>仅推特授权，无其他登录方式</span></div>
       <div class="stat"><b>只读核查</b><span>不申请自动关注权限</span></div>
     </div>
   </section>
   <div class="banner" id="backendBanner"></div>
   <div class="banner" id="gateBanner"></div>
 
-  <!-- 登录 / 登记 -->
+  <!-- 资料（登录后才出现，登录本身只有推特授权一个入口） -->
   <div class="card" id="loginCard">
-    <h2 style="margin-top:0">1 · 登录并登记你的关注需求</h2>
-    <p class="muted">多用户互通版：登记后数据存在共享后端，所有访客刷新榜单都有机会刷到你，不再只存在你自己浏览器里。关注仍需去推特主页手动完成，本站只记录、不自动关注。</p>
-    <p class="muted small">登录方式：点“用 X 登录”走推特授权，登录后本站取回你的真实 handle，登记 handle 必须与登录账号一致，杜绝手动填别人 handle 冒名。只读核查，不申请自动关注权限。</p>
-    <div class="row"><button class="blue" onclick="twitterLogin()">用 X 登录</button><button class="secondary" onclick="logout()">退出登录</button></div>
+    <h2 style="margin-top:0">完善资料（可选）</h2>
+    <p class="muted">登录后你的 handle 和昵称已从推特取回，不用再填账号。下面只填简介和领域，保存后即可上榜展示。未登录时请点首屏的“用 X 登录”。</p>
+    <div class="row"><button onclick="twitterLogin()">𝕏 &nbsp;用 X 登录</button><button class="secondary" onclick="logout()">退出登录</button></div>
     <p class="muted small" id="twitterLoginNote"></p>
-    <label>你的推特 handle（登录后自动填入，不可手动改成别人的号）</label>
-    <input id="myHandle" placeholder="请先点“用 X 登录”" readonly>
-    <label>昵称</label>
-    <input id="myName" placeholder="例如 小禾">
     <label>简介 / 关注需求</label>
     <textarea id="myBio" rows="2" placeholder="例如：想认识加密、AI 领域的朋友，互关必回"></textarea>
     <label>领域标签（多选）</label>
     <div id="tagBox" class="row"></div>
     <div class="row">
-      <button class="blue" onclick="loginAndRegister()">登录并登记上榜</button>
-      <button class="secondary" onclick="loginExisting()">仅登录已有账号（不重复登记）</button>
-      <button class="secondary" onclick="logout()">退出登录</button>
+      <button class="blue" onclick="saveProfile()">保存资料并上榜</button>
     </div>
     <p class="muted small" id="registerNote"></p>
   </div>
@@ -112,7 +104,7 @@ pre{white-space:pre-wrap;background:#f9fafb;border:1px solid var(--line);border-
         <h2 style="margin:0">互关榜 · 随机推荐</h2>
         <button class="blue" onclick="shuffleBoard()">🔀 换一换（刷新榜单）</button>
       </div>
-      <p class="muted">每次刷新网页、每次点“换一换”，榜单都会重新随机洗牌。连后端时由服务端随机；未连后端时只用本地演示数据。榜单不含你自己。</p>
+      <p class="muted">每次刷新网页、每次点“换一换”，榜单都会由服务端重新随机洗牌。榜单不含你自己。</p>
       <p class="muted small" id="boardMeta"></p>
     </div>
     <div class="grid" id="board"></div>
@@ -126,7 +118,7 @@ pre{white-space:pre-wrap;background:#f9fafb;border:1px solid var(--line);border-
     </div>
     <div class="card">
       <h2 style="margin-top:0">我关注过的账号</h2>
-      <p class="muted">右边显示对方是否也关注了你：已互关 / 对方未回关。连后端时为本站记录的互关，未经推特 API 核查。</p>
+      <p class="muted">右边显示对方是否也关注了你：已互关 / 对方未回关。</p>
       <div id="myFollowed"></div>
     </div>
   </div>
@@ -135,15 +127,15 @@ pre{white-space:pre-wrap;background:#f9fafb;border:1px solid var(--line);border-
   <div id="view-gate" class="hidden">
     <div class="card">
       <h2 style="margin-top:0">使用互关功能的前提</h2>
-      <p class="muted">两项都通过后，才能点榜单上的“去关注 / 确认已关注”。v2 的门槛是用户自述并记入共享后端，未经推特 API 核查；第二阶段接通推特 OAuth 后才会自动核查。</p>
+      <p class="muted">两项都通过后，才能点榜单上的“去关注 / 确认已关注”。门槛只走推特只读核查，没有自报按钮：登录后点“用推特自动核查门槛”即可。</p>
       <h3>① 关注官方推特账号</h3>
       <p>官方账号：<a href="https://x.com/cairuixu" target="_blank" rel="noopener">@cairuixu</a></p>
-      <div class="row"><a href="https://x.com/cairuixu" target="_blank" rel="noopener"><button class="blue">去关注 @cairuixu</button></a><button onclick="setGate('official',true)">我已关注官方</button></div>
+      <div class="row"><a href="https://x.com/cairuixu" target="_blank" rel="noopener"><button class="blue">去关注 @cairuixu</button></a></div>
       <p id="gateOfficial"></p>
       <h3>② 发布一篇网站宣传推文</h3>
       <p class="muted">固定文案如下，含本站链接。点“发布推文”会打开推特发推框，文案已预填，点发送即可。登录后可点“用推特自动核查门槛”，由后端用只读接口核查你是否关注了官方账号、近期推文是否含本站链接。</p>
       <pre id="promoText"></pre>
-      <div class="row"><button class="blue" onclick="openPromo()">发布宣传推文</button><button class="secondary" onclick="copyPromo()">复制文案</button><button onclick="setGate('promo',true)">我已发布</button><button class="blue" onclick="twitterVerify()">用推特自动核查门槛</button></div>
+      <div class="row"><button class="blue" onclick="openPromo()">发布宣传推文</button><button class="secondary" onclick="copyPromo()">复制文案</button><button class="blue" onclick="twitterVerify()">用推特自动核查门槛</button></div>
       <p class="muted small" id="twitterVerifyNote"></p>
       <p id="gatePromo"></p>
       <p class="muted small" id="gateStandard"></p>
@@ -154,7 +146,7 @@ pre{white-space:pre-wrap;background:#f9fafb;border:1px solid var(--line);border-
   <p class="section-sub">不用批量关注，不用交出推特密码，全程只读核查。</p>
   <div class="steps">
     <div class="step"><b>1</b><h3 style="margin:8px 0 4px">用 X 登录</h3><p class="muted small">走推特官方授权，登录后本站取回你的真实账号，登记不能冒用别人的号。</p></div>
-    <div class="step"><b>2</b><h3 style="margin:8px 0 4px">完成门槛</h3><p class="muted small">关注官方账号 @cairuixu，并发布一篇带本站链接的宣传推文，登录后可一键自动核查。</p></div>
+    <div class="step"><b>2</b><h3 style="margin:8px 0 4px">自动核查门槛</h3><p class="muted small">关注官方账号 @cairuixu，并发布一篇带本站链接的宣传推文，点一下自动核查，不用自己打勾。</p></div>
     <div class="step"><b>3</b><h3 style="margin:8px 0 4px">刷榜互关</h3><p class="muted small">在互关榜里随机刷出新朋友，去对方推特主页手动关注，回来确认，互关状态一目了然。</p></div>
   </div>
 
@@ -168,32 +160,17 @@ pre{white-space:pre-wrap;background:#f9fafb;border:1px solid var(--line);border-
 // ============ 只改这里：后端地址 ============
 // 部署 Worker 后，把下面改成 Worker 的 workers.dev 地址，例如：
 //   const API_BASE = "https://x-mutual-follow-api.<你的子域>.workers.dev";
-// 留空 "" 表示不连后端：页面回落到本地演示数据，并在顶部明示“未连后端、仅本地演示”。
+// 留空 "" 表示不连后端：页面只显示后端未连提示，不展示演示账号。
 const API_BASE = "https://x-mutual-follow-api.332669081.workers.dev";
 // ============ 只改这里：本站地址（换域名时同步改这里 + Worker 的 CORS + 宣传推文） ============
 const SITE_URL = "https://cairuixu.github.io/x-mutual-follow/";
 const OFFICIAL = "cairuixu";
 const PROMO = "发现一个推特互关神器 🤝 登记账号就能上互关榜，随机刷出新朋友，一键看谁回关了你！先关注 @cairuixu，发布这条推文解锁互关榜 👉 " + SITE_URL + " #推特互关 #互关";
 document.getElementById('promoText').textContent = PROMO;
-document.getElementById('gateStandard').textContent = "判定标准：关注官方账号 + 近期推文里含有本站链接（" + SITE_URL + "）即算通过；登录后点“用推特自动核查门槛”可由后端只读核查，未登录时门槛为自述。";
+document.getElementById('gateStandard').textContent = "判定标准：关注官方账号 + 近期推文里含有本站链接（" + SITE_URL + "）即算通过；登录后点“用推特自动核查门槛”由后端只读核查。未登录时请先用 X 登录。";
 
 const TAGS = ["加密","AI","游戏","生活","摄影","音乐","运动","创业","设计","美食"];
-// 本地演示数据：仅在未连后端时使用，别人看不到这些数据。
-const SEEDS = [
-  ["crypto_momo","Momo","加密行情与空投分享，互关必回",["加密","AI"]],
-  ["ai_daily_lee","Lee","每天一条 AI 工具测评",["AI","创业"]],
-  ["game_night_owl","夜枭","独立游戏玩家，晚上在线",["游戏","生活"]],
-  ["photo_walk","行走的相机","城市街拍，周末约拍",["摄影","生活"]],
-  ["fit_with_anna","Anna","健身打卡，减脂互督",["运动","生活"]],
-  ["indie_maker_k","K","独立开发者，做小产品",["创业","AI"]],
-  ["foodie_tokyo","东京吃货","拉面与咖啡探店",["美食","生活"]],
-  ["music_lover_jo","Jo","每周歌单分享",["音乐","生活"]],
-  ["design_daily","设计日报","UI 灵感合集",["设计","AI"]],
-  ["web3_builder_sam","Sam","Web3 建设者，找互关",["加密","创业"]],
-  ["travel_light","轻旅行","一个人旅行记录",["生活","摄影"]],
-  ["code_poet","代码诗人","写代码也写诗",["AI","创业"]],
-];
-const DEMO_REL = {"crypto_momo":[1,1],"ai_daily_lee":[1,0],"game_night_owl":[0,1],"photo_walk":[0,0],"fit_with_anna":[1,1],"web3_builder_sam":[0,1],"foodie_tokyo":[1,0]};
+// 榜单只来自共享后端。
 
 function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function load(k,f){try{return JSON.parse(localStorage.getItem(k))||f}catch(e){return f}}
@@ -220,7 +197,7 @@ async function twitterVerify(){
     twitterSession = q.get('session'); save('xmf_twitter_session', twitterSession);
     const handle = normHandle(q.get('handle'));
     me = {handle, name: handle, bio: '', tags: []}; save('xmf_v2_me', me); save('xmf_me', me);
-    const noteEl = document.getElementById('twitterLoginNote'); if(noteEl) noteEl.textContent = '已用 X 登录：@' + handle + '，请填简介和标签后点“登录并登记上榜”。';
+    const noteEl = document.getElementById('twitterLoginNote'); if(noteEl) noteEl.textContent = '已用 X 登录：@' + handle + '，正在自动上榜。';
   } else {
     alert('推特登录失败：' + (q.get('reason') || '未知原因，请重试'));
   }
@@ -228,8 +205,7 @@ async function twitterVerify(){
 })();
 let gate = load('xmf_v2_gate', {official:false,promo:false});
 let myFollows = load('xmf_myFollows', {});
-let boardPool = load('xmf_pool', null);
-if(!boardPool){ boardPool = SEEDS.map(s=>({handle:s[0],name:s[1],bio:s[2],tags:s[3]})); save('xmf_pool',boardPool); }
+let boardPool = [];
 let backendOnline = false;
 let backendError = "";
 
@@ -247,13 +223,13 @@ function renderBackendBanner(){
   const el = document.getElementById('backendBanner');
   if(!API_BASE){
     el.className = "banner";
-    el.innerHTML = "⚠️ 未连后端、仅本地演示：API_BASE 为空，登记只存在你自己浏览器里，别人看不到你。部署 Worker 后把 index.html 顶部的 API_BASE 改成 Worker 地址并重新部署前端，即可多用户互通。";
+    el.innerHTML = "⚠️ 后端未配置：请稍后重试，登录仍只走推特授权。";
   } else if(backendOnline){
     el.className = "banner ok";
-    el.innerHTML = "✓ 已连后端、多用户互通：登记存在共享后端，所有访客刷新榜单都有机会刷到你。登录已接通推特 OAuth，登记需与登录账号一致；门槛可点“用推特自动核查门槛”只读核查。";
+    el.innerHTML = "✓ 已连后端：登录只走推特 OAuth，登记需与登录账号一致；门槛只走推特只读核查。";
   } else {
     el.className = "banner";
-    el.innerHTML = "⚠️ 未连后端、仅本地演示（后端请求失败，已回落本地数据）：" + esc(backendError || "无法访问 API_BASE，请检查 Worker 是否已部署、地址是否正确。");
+    el.innerHTML = "⚠️ 后端暂时连不上（" + esc(backendError || "无法访问后端") + "），请稍后重试。";
   }
 }
 async function checkBackend(){
@@ -262,7 +238,7 @@ async function checkBackend(){
   try{
     await api("/api/health");
     backendOnline = true;
-    // 连后端后同步门槛自述
+    // 连后端后同步门槛状态
     if(me){
       try{
         const d = await api("/api/me?handle=" + encodeURIComponent(me.handle));
@@ -274,10 +250,8 @@ async function checkBackend(){
 }
 function localAccounts(){
   return boardPool.map(a=>{
-    const rel = DEMO_REL[a.handle] || [myFollows[a.handle]?1:0, 0];
-    const iFollow = myFollows[a.handle] ? true : !!rel[0];
-    const followsMe = !!rel[1];
-    return {...a, iFollow, followsMe, mutual: iFollow && followsMe};
+    const iFollow = !!myFollows[a.handle];
+    return {...a, iFollow, followsMe: false, mutual: false};
   }).filter(a=>!me || a.handle.toLowerCase()!==me.handle.toLowerCase());
 }
 function badge(a){
@@ -288,12 +262,12 @@ function badge(a){
 }
 function gatePassed(){ return gate.official && gate.promo; }
 function renderGate(){
-  document.getElementById('gateOfficial').innerHTML = gate.official ? '<span class="ok">✓ 已通过（自述）：已关注 @cairuixu</span>' : '未通过：请先关注官方账号';
-  document.getElementById('gatePromo').innerHTML = gate.promo ? '<span class="ok">✓ 已通过（自述）：已发布宣传推文</span>' : '未通过：请先发布宣传推文';
+  document.getElementById('gateOfficial').innerHTML = gate.official ? '<span class="ok">✓ 已通过（推特核查）：已关注 @cairuixu</span>' : '未通过：请先关注官方账号，再点自动核查';
+  document.getElementById('gatePromo').innerHTML = gate.promo ? '<span class="ok">✓ 已通过（推特核查）：已发布宣传推文</span>' : '未通过：请先发布宣传推文，再点自动核查';
   document.getElementById('gateBanner').innerHTML = gatePassed()
-    ? '<span class="ok">✓ 门槛已通过（自述）</span>：互关功能已解锁，去互关榜认识新朋友吧。第二阶段推特核查接通后才会自动核查。'
-    : '⚠️ 使用互关功能前，请先完成门槛：<b>关注 @cairuixu</b> + <b>发布一篇本站宣传推文</b>（v2 为自述）。去“门槛校验”页完成，榜单上的关注按钮在通过前不可用。';
-  document.getElementById('loginState').textContent = me ? ('已登录 @'+me.handle) : '未登录';
+    ? '<span class="ok">✓ 门槛已通过（推特核查）</span>：互关功能已解锁，去互关榜认识新朋友吧。'
+    : (!me ? '请先用 X 登录，再去“门槛校验”页点自动核查。' : '⚠️ 使用互关功能前，请先完成门槛：<b>关注 @cairuixu</b> + <b>发布一篇本站宣传推文</b>，然后去“门槛校验”页点自动核查。');
+  document.getElementById('loginState').textContent = me ? ('已登录 @'+me.handle) : '未登录 · 仅 X 登录';
 }
 function avatarFor(a){
   const ch = (a.name || a.handle || '?').trim().charAt(0).toUpperCase();
@@ -328,9 +302,7 @@ async function shuffleBoard(){
       return;
     }catch(e){ backendOnline = false; backendError = e.message; renderBackendBanner(); }
   }
-  const list = localAccounts();
-  for(let i=list.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[list[i],list[j]]=[list[j],list[i]];}
-  renderBoardList(list.slice(0,12), list.length, "本地演示");
+  renderBoardList([], 0, "未连后端，请用 X 登录后重试");
 }
 async function confirmFollow(handle){
   handle = normHandle(handle);
@@ -352,7 +324,7 @@ async function confirmFollow(handle){
   await shuffleBoard(); await renderMe();
 }
 async function renderMe(){
-  if(!me){ document.getElementById('myProfile').innerHTML='<p class="muted">尚未登录登记，请在顶部登记你的账号。</p>'; document.getElementById('myFollowed').innerHTML=''; return; }
+  if(!me){ document.getElementById('myProfile').innerHTML='<p class="muted">尚未登录，请点首屏的“用 X 登录”。</p>'; document.getElementById('myFollowed').innerHTML=''; return; }
   if(backendOnline){
     try{
       const d = await api("/api/me?handle=" + encodeURIComponent(me.handle));
@@ -370,65 +342,36 @@ async function renderMe(){
   localAccounts().filter(a=>a.iFollow && !myFollows[a.handle]).forEach(a=>list.push([a.handle,{name:a.name,followsMe:a.followsMe}]));
   if(!list.length){ document.getElementById('myFollowed').innerHTML='<p class="muted">还没有关注过的账号，去互关榜逛逛吧。</p>'; return; }
   document.getElementById('myFollowed').innerHTML = list.map(([h,v])=>{
-    const s = v.followsMe ? '<span class="badge b-mutual">对方也关注了我 · 已互关（本地演示）</span>' : '<span class="badge b-none">对方尚未回关你</span>';
+    const s = v.followsMe ? '<span class="badge b-mutual">对方也关注了我 · 已互关</span>' : '<span class="badge b-none">对方尚未回关你</span>';
     return '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding:10px 0"><span><b>'+esc(v.name)+'</b> <span class="handle">@'+esc(h)+'</span></span><span>'+s+'</span></div>';
   }).join('');
 }
-async function loginAndRegister(){
-  const handle = normHandle(document.getElementById('myHandle').value);
-  const name = document.getElementById('myName').value.trim()||handle;
-  const bio = document.getElementById('myBio').value.trim()||'求互关，互关必回';
+async function saveProfile(){
+  if(!me || !twitterSession){ alert('请先用 X 登录'); return; }
+  const name = me.name || me.handle;
+  const bio = document.getElementById('myBio').value.trim() || '求互关，互关必回';
   const tags = [...document.querySelectorAll('#tagBox input:checked')].map(x=>x.value);
-  if(!handle){alert('请先点“用 X 登录”');return;}
-  if(!twitterSession){alert('请先点“用 X 登录”，登记 handle 必须与推特登录账号一致');return;}
   if(backendOnline){
     try{
-      await api("/api/register", {method:"POST", body: JSON.stringify({handle, name, bio, tags, session_token: twitterSession})});
+      await api("/api/register", {method:"POST", body: JSON.stringify({handle: me.handle, name, bio, tags, session_token: twitterSession})});
     }catch(e){
-      if(String(e.message).includes("handle_taken")){
-        alert('该 handle 已被登记（先到先得）。如是你本人，请点“仅登录已有账号”；如不是，请换一个 handle。');
-        return;
-      }
-      alert('登记失败：' + e.message); return;
-    }
-  } else {
-    if(!boardPool.find(a=>a.handle.toLowerCase()===handle.toLowerCase())){
-      boardPool.push({handle,name,bio,tags}); save('xmf_pool',boardPool);
+      if(!String(e.message).includes("handle_taken")){ alert('保存失败：' + e.message); return; }
     }
   }
-  me = {handle,name,bio,tags}; save('xmf_v2_me', me); save('xmf_me', me); save('xmf_twitter_session', twitterSession);
-  document.getElementById('registerNote').textContent = backendOnline
-    ? '已登记上榜：@'+handle+'，已写入共享后端，其他访客刷新榜单时有机会随机刷到你。'
-    : '已登记（本地演示）：@'+handle+'，未连后端，别人还看不到你。连后端后请重新登记一次。';
+  me = {handle: me.handle, name, bio, tags}; save('xmf_v2_me', me); save('xmf_me', me);
+  document.getElementById('registerNote').textContent = '已保存：@' + me.handle + ' 已上榜。';
   renderGate(); await shuffleBoard(); await renderMe(); showTab('board');
 }
-async function loginExisting(){
-  const handle = normHandle(document.getElementById('myHandle').value);
-  if(!handle){alert('请先填你的推特 handle');return;}
-  if(backendOnline){
-    try{
-      const d = await api("/api/me?handle=" + encodeURIComponent(handle));
-      me = d.user; save('xmf_v2_me', me); save('xmf_me', me);
-      if(d.gate){ gate = {official: d.gate.official_followed, promo: d.gate.promo_posted}; save('xmf_v2_gate', gate); }
-    }catch(e){ alert('登录失败：' + e.message); return; }
-  } else {
-    const found = boardPool.find(a=>a.handle===handle);
-    if(!found){ alert('本地演示里没有这个 handle，请先登记。'); return; }
-    me = found; save('xmf_v2_me', me); save('xmf_me', me);
-  }
-  document.getElementById('registerNote').textContent = '已登录已有账号：@'+handle;
-  renderGate(); await shuffleBoard(); await renderMe(); showTab('board');
+async function autoRegisterAfterLogin(){
+  if(!me || !twitterSession || !backendOnline) return;
+  if(load('xmf_auto_registered_' + me.handle, null)) return;
+  try{
+    await api("/api/register", {method:"POST", body: JSON.stringify({handle: me.handle, name: me.handle, bio: '求互关，互关必回', tags: [], session_token: twitterSession})});
+  }catch(e){ /* handle_taken means already registered: still fine */ }
+  save('xmf_auto_registered_' + me.handle, true);
 }
+
 function logout(){ me=null; twitterSession=null; save('xmf_v2_me',null); save('xmf_me',null); save('xmf_twitter_session',null); renderGate(); shuffleBoard(); renderMe(); }
-async function setGate(k,v){
-  if(!me){ alert('请先登录登记，再完成门槛。'); return; }
-  gate[k]=v; save('xmf_v2_gate', gate);
-  if(backendOnline){
-    try{ await api("/api/gate", {method:"POST", body: JSON.stringify({handle: me.handle, official_followed: gate.official, promo_posted: gate.promo})}); }
-    catch(e){ alert('门槛记录到后端失败（本地仍已标记）：' + e.message); }
-  }
-  renderGate(); await shuffleBoard();
-}
 function openPromo(){ window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(PROMO),'_blank'); }
 function copyPromo(){ navigator.clipboard.writeText(PROMO).then(()=>alert('宣传文案已复制')); }
 function showTab(t){
@@ -439,8 +382,8 @@ function showTab(t){
   if(t==='me') renderMe();
 }
 document.getElementById('tagBox').innerHTML = TAGS.map(t=>'<label style="font-weight:400"><input type="checkbox" value="'+t+'" style="width:auto"> '+t+'</label>').join(' ');
-if(me){ document.getElementById('myHandle').value=me.handle; document.getElementById('myName').value=me.name; document.getElementById('myBio').value=me.bio; }
-(async()=>{ renderGate(); await checkBackend(); await shuffleBoard(); await renderMe(); })();
+if(me){ document.getElementById('myBio').value=me.bio||''; }
+(async()=>{ renderGate(); await checkBackend(); await autoRegisterAfterLogin(); await shuffleBoard(); await renderMe(); })();
 </script>
 </body>
 </html>
