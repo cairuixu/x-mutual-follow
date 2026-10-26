@@ -50,9 +50,11 @@ pre{white-space:pre-wrap;background:#f9fafb;border:1px solid var(--line);border-
   <div class="card" id="loginCard">
     <h2 style="margin-top:0">1 · 登录并登记你的关注需求</h2>
     <p class="muted">多用户互通版：登记后数据存在共享后端，所有访客刷新榜单都有机会刷到你，不再只存在你自己浏览器里。关注仍需去推特主页手动完成，本站只记录、不自动关注。</p>
-    <p class="muted small">注意：v2 暂无推特登录验证，handle 先到先得；正式身份验证需第二阶段推特 OAuth（见 README-v2.md），届时“本站记录的互关”才会升级为“推特 API 核查的互关”。</p>
-    <label>你的推特 handle（不带 @）</label>
-    <input id="myHandle" placeholder="例如 cairuixu">
+    <p class="muted small">登录方式：点“用 X 登录”走推特授权，登录后本站取回你的真实 handle，登记 handle 必须与登录账号一致，杜绝手动填别人 handle 冒名。只读核查，不申请自动关注权限。</p>
+    <div class="row"><button class="blue" onclick="twitterLogin()">用 X 登录</button><button class="secondary" onclick="logout()">退出登录</button></div>
+    <p class="muted small" id="twitterLoginNote"></p>
+    <label>你的推特 handle（登录后自动填入，不可手动改成别人的号）</label>
+    <input id="myHandle" placeholder="请先点“用 X 登录”" readonly>
     <label>昵称</label>
     <input id="myName" placeholder="例如 小禾">
     <label>简介 / 关注需求</label>
@@ -103,9 +105,10 @@ pre{white-space:pre-wrap;background:#f9fafb;border:1px solid var(--line);border-
       <div class="row"><a href="https://x.com/cairuixu" target="_blank" rel="noopener"><button class="blue">去关注 @cairuixu</button></a><button onclick="setGate('official',true)">我已关注官方</button></div>
       <p id="gateOfficial"></p>
       <h3>② 发布一篇网站宣传推文</h3>
-      <p class="muted">固定文案如下，含本站链接。点“发布推文”会打开推特发推框，文案已预填，点发送即可。</p>
+      <p class="muted">固定文案如下，含本站链接。点“发布推文”会打开推特发推框，文案已预填，点发送即可。登录后可点“用推特自动核查门槛”，由后端用只读接口核查你是否关注了官方账号、近期推文是否含本站链接。</p>
       <pre id="promoText"></pre>
-      <div class="row"><button class="blue" onclick="openPromo()">发布宣传推文</button><button class="secondary" onclick="copyPromo()">复制文案</button><button onclick="setGate('promo',true)">我已发布</button></div>
+      <div class="row"><button class="blue" onclick="openPromo()">发布宣传推文</button><button class="secondary" onclick="copyPromo()">复制文案</button><button onclick="setGate('promo',true)">我已发布</button><button class="blue" onclick="twitterVerify()">用推特自动核查门槛</button></div>
+      <p class="muted small" id="twitterVerifyNote"></p>
       <p id="gatePromo"></p>
       <p class="muted small" id="gateStandard"></p>
     </div>
@@ -125,7 +128,7 @@ const SITE_URL = "https://cairuixu.github.io/x-mutual-follow/";
 const OFFICIAL = "cairuixu";
 const PROMO = "发现一个推特互关神器 🤝 登记账号就能上互关榜，随机刷出新朋友，一键看谁回关了你！先关注 @cairuixu，发布这条推文解锁互关榜 👉 " + SITE_URL + " #推特互关 #互关";
 document.getElementById('promoText').textContent = PROMO;
-document.getElementById('gateStandard').textContent = "正式版判定标准（第二阶段推特核查接通后）：你的近期推文里含有本站链接（" + SITE_URL + "）即算通过；文案可自由发挥，但必须带链接。v2 当前为自述，尚未自动核查。";
+document.getElementById('gateStandard').textContent = "判定标准：关注官方账号 + 近期推文里含有本站链接（" + SITE_URL + "）即算通过；登录后点“用推特自动核查门槛”可由后端只读核查，未登录时门槛为自述。";
 
 const TAGS = ["加密","AI","游戏","生活","摄影","音乐","运动","创业","设计","美食"];
 // 本地演示数据：仅在未连后端时使用，别人看不到这些数据。
@@ -151,6 +154,31 @@ function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function normHandle(h){ return String(h||"").trim().replace(/^@/,"").toLowerCase(); }
 
 let me = load('xmf_v2_me', null) || load('xmf_me', null); // 兼容 v1 本地登录
+let twitterSession = load('xmf_twitter_session', null);
+function twitterLogin(){ if(!API_BASE){ alert('后端未配置'); return; } window.location.href = API_BASE.replace(/\/$/, "") + "/api/twitter/login"; }
+async function twitterVerify(){
+  if(!twitterSession){ alert('请先用 X 登录'); return; }
+  try{
+    const d = await api("/api/twitter/verify?session=" + encodeURIComponent(twitterSession));
+    gate = {official: d.official_followed, promo: d.promo_posted}; save('xmf_v2_gate', gate);
+    document.getElementById('twitterVerifyNote').textContent = d.verified ? '✓ 推特核查通过：已关注官方且近期推文含本站链接。' : '推特核查结果：关注官方 ' + (d.official_followed ? '✓' : '✗') + '，宣传推文 ' + (d.promo_posted ? '✓' : '✗') + '。未通过的请先在推特上完成对应操作再核查一次。';
+    renderGate(); await shuffleBoard();
+  }catch(e){ alert('核查失败：' + e.message); }
+}
+(function handleTwitterCallback(){
+  const q = new URLSearchParams(window.location.search);
+  const login = q.get('twitter_login');
+  if(!login) return;
+  if(login === 'ok' && q.get('handle') && q.get('session')){
+    twitterSession = q.get('session'); save('xmf_twitter_session', twitterSession);
+    const handle = normHandle(q.get('handle'));
+    me = {handle, name: handle, bio: '', tags: []}; save('xmf_v2_me', me); save('xmf_me', me);
+    const noteEl = document.getElementById('twitterLoginNote'); if(noteEl) noteEl.textContent = '已用 X 登录：@' + handle + '，请填简介和标签后点“登录并登记上榜”。';
+  } else {
+    alert('推特登录失败：' + (q.get('reason') || '未知原因，请重试'));
+  }
+  window.history.replaceState({}, '', window.location.pathname);
+})();
 let gate = load('xmf_v2_gate', {official:false,promo:false});
 let myFollows = load('xmf_myFollows', {});
 let boardPool = load('xmf_pool', null);
@@ -175,7 +203,7 @@ function renderBackendBanner(){
     el.innerHTML = "⚠️ 未连后端、仅本地演示：API_BASE 为空，登记只存在你自己浏览器里，别人看不到你。部署 Worker 后把 index.html 顶部的 API_BASE 改成 Worker 地址并重新部署前端，即可多用户互通。";
   } else if(backendOnline){
     el.className = "banner ok";
-    el.innerHTML = "✓ 已连后端、多用户互通：登记存在共享后端，所有访客刷新榜单都有机会刷到你。本站记录的互关未经推特 API 核查（第二阶段才接通）。";
+    el.innerHTML = "✓ 已连后端、多用户互通：登记存在共享后端，所有访客刷新榜单都有机会刷到你。登录已接通推特 OAuth，登记需与登录账号一致；门槛可点“用推特自动核查门槛”只读核查。";
   } else {
     el.className = "banner";
     el.innerHTML = "⚠️ 未连后端、仅本地演示（后端请求失败，已回落本地数据）：" + esc(backendError || "无法访问 API_BASE，请检查 Worker 是否已部署、地址是否正确。");
@@ -297,10 +325,11 @@ async function loginAndRegister(){
   const name = document.getElementById('myName').value.trim()||handle;
   const bio = document.getElementById('myBio').value.trim()||'求互关，互关必回';
   const tags = [...document.querySelectorAll('#tagBox input:checked')].map(x=>x.value);
-  if(!handle){alert('请先填你的推特 handle');return;}
+  if(!handle){alert('请先点“用 X 登录”');return;}
+  if(!twitterSession){alert('请先点“用 X 登录”，登记 handle 必须与推特登录账号一致');return;}
   if(backendOnline){
     try{
-      await api("/api/register", {method:"POST", body: JSON.stringify({handle, name, bio, tags})});
+      await api("/api/register", {method:"POST", body: JSON.stringify({handle, name, bio, tags, session_token: twitterSession})});
     }catch(e){
       if(String(e.message).includes("handle_taken")){
         alert('该 handle 已被登记（先到先得）。如是你本人，请点“仅登录已有账号”；如不是，请换一个 handle。');
@@ -313,7 +342,7 @@ async function loginAndRegister(){
       boardPool.push({handle,name,bio,tags}); save('xmf_pool',boardPool);
     }
   }
-  me = {handle,name,bio,tags}; save('xmf_v2_me', me); save('xmf_me', me);
+  me = {handle,name,bio,tags}; save('xmf_v2_me', me); save('xmf_me', me); save('xmf_twitter_session', twitterSession);
   document.getElementById('registerNote').textContent = backendOnline
     ? '已登记上榜：@'+handle+'，已写入共享后端，其他访客刷新榜单时有机会随机刷到你。'
     : '已登记（本地演示）：@'+handle+'，未连后端，别人还看不到你。连后端后请重新登记一次。';
@@ -336,7 +365,7 @@ async function loginExisting(){
   document.getElementById('registerNote').textContent = '已登录已有账号：@'+handle;
   renderGate(); await shuffleBoard(); await renderMe(); showTab('board');
 }
-function logout(){ me=null; save('xmf_v2_me',null); save('xmf_me',null); renderGate(); shuffleBoard(); renderMe(); }
+function logout(){ me=null; twitterSession=null; save('xmf_v2_me',null); save('xmf_me',null); save('xmf_twitter_session',null); renderGate(); shuffleBoard(); renderMe(); }
 async function setGate(k,v){
   if(!me){ alert('请先登录登记，再完成门槛。'); return; }
   gate[k]=v; save('xmf_v2_gate', gate);
